@@ -190,12 +190,12 @@ class cl_pannel_01:
         
         # define GUI elements
         self.label_rotaxis = Label(frame, text='Rotation Axis: ')
-        self.label_degree = Label(frame, text='Degree: ')
+        self.label_degree = Label(frame, text='Degrees: ')
         self.label_steps = Label(frame, text='Steps: ')
         self.rdo_x = Radiobutton(frame, text='X', variable=self.var_axis, value='x')
         self.rdo_y = Radiobutton(frame, text='Y', variable=self.var_axis, value='y')
         self.rdo_z = Radiobutton(frame, text='Z', variable=self.var_axis, value='z')
-        self.rdo_ab = Radiobutton(frame, text='Line AB', variable=self.var_axis, value='ab')
+        #self.rdo_ab = Radiobutton(frame, text='Line AB', variable=self.var_axis, value='ab')
         self.spnbox_degree = Spinbox(frame, from_=0, to=360, width=3)
         self.spnbox_steps = Spinbox(frame, from_=1, to=10, width=2)
         self.btn_rotate = Button(frame, text='Rotate', command=self.btn_rotate_callback)
@@ -205,7 +205,7 @@ class cl_pannel_01:
         self.rdo_x.pack(side=LEFT)
         self.rdo_y.pack(side=LEFT)
         self.rdo_z.pack(side=LEFT)
-        self.rdo_ab.pack(side=LEFT)
+        #self.rdo_ab.pack(side=LEFT)
         self.label_degree.pack(side=LEFT)
         self.spnbox_degree.pack(side=LEFT)
         self.label_steps.pack(side=LEFT)
@@ -235,20 +235,7 @@ class cl_pannel_02:
         self.master=master
         frame = Frame(master.ob_root_window)
         frame.pack()
-        self.button = Button(frame, text="Open Dialog", fg="blue", command=self.open_dialog_callback)
-        self.button.pack(side=LEFT)
-
-        self.hi_there = Button(frame, text="button 2", command=self.button2_callback)
-        self.hi_there.pack(side=LEFT)
         
-
-    def open_dialog_callback(self):
-        d = MyDialog(self.master.ob_root_window)
-        print ( d.result)
-        print ( "mydialog_callback pressed!"   )     
-
-    def button2_callback(self):
-        print ( "button2 pressed!")
 class MyDialog(simpledialog.Dialog):
     def body(self, master):
 
