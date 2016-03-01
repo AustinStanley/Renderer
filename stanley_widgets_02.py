@@ -140,7 +140,6 @@ class cl_toolbar:
         self.entry.pack(side=LEFT)
         self.btn_browse.pack(side=LEFT)
         self.btn_load.pack(side=LEFT)
-        print ( "called the draw callback!")
         
     def browse_file(self):
         self.var_filename.set(filedialog.askopenfilename(filetypes=[("allfiles","*"),("pythonfiles","*.txt")]))
@@ -227,7 +226,6 @@ class cl_pannel_01:
                                       self.master.faces, 
                                       self.master.window, 
                                       self.master.viewport)
-            print()
             time.sleep(1/10)
     
 class cl_pannel_02:
