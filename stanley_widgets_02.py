@@ -16,7 +16,7 @@ class cl_widgets:
     def __init__(self,ob_root_window,ob_world=[]):
         self.ob_root_window=ob_root_window
         self.ob_world=ob_world
-        self.menu=cl_menu(self)
+        #self.menu=cl_menu(self)
         self.toolbar=cl_toolbar(self)
         self.pannel_01 = cl_pannel_01(self)
         self.pannel_02 = cl_pannel_02(self)

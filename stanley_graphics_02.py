@@ -23,7 +23,6 @@ def window_to_viewport(point, window, viewport, canvas):
     yratio = (vymax - vymin) / (wymax - wymin)
     
     # homogeneous coords
-    print(point)
     point = np.append(point, 1)
     
     M_wv = np.matrix([[xratio, 0, -wxmin * xratio + vxmin],
@@ -144,7 +143,6 @@ class cl_world:
                            
         new_verts = []
         for v in verteces:
-            print(r.dot(v).getA()[0])
             new_verts.append(r.dot(v).getA()[0])
             
         return new_verts
