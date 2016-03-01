@@ -4,6 +4,7 @@
 # Assignment_02
 
 import numpy as np
+import time
 
 from tkinter import *
 from math import *
@@ -22,11 +23,15 @@ class cl_widgets:
         self.ob_canvas_frame=cl_canvas_frame(self)
         #self.status = cl_statusBar_frame(self)
         self.ob_world.add_canvas(self.ob_canvas_frame.canvas)
+        self.verteces = []
+        self.faces = []
+        self.window = None
+        self.viewport = None
 
 class cl_canvas_frame:
     def __init__(self, master):
         self.master=master
-        self.canvas = Canvas(master.ob_root_window,width=640, height=640, bg="yellow", highlightthickness=0)
+        self.canvas = Canvas(master.ob_root_window,width=640, height=640, bg="white", highlightthickness=0)
         self.canvas.pack(expand=YES, fill=BOTH)
         
         self.canvas.bind('<Configure>', self.canvas_resized_callback) 
@@ -113,47 +118,34 @@ class cl_canvas_frame:
         print ('canvas width', self.canvas.cget("width"))
         print ('canvas height', self.canvas.cget("height"))
         self.master.ob_world.redisplay(self.master.ob_canvas_frame.canvas,event)
-class cl_pannel_01:
-
+        
+class cl_toolbar:
     def __init__(self, master):
-
+        
         self.master=master
         frame = Frame(master.ob_root_window)
         frame.pack()
         
         self.var_filename = StringVar()
         self.var_filename.set('')
-        self.button = Button(frame, text="Hello", fg="red", command=self.say_hi)
-        self.button.pack(side=LEFT)
-
-        self.hi_there = Button(frame, text="Ask for a string", command=self.ask_for_string)
-        self.hi_there.pack(side=LEFT)
         
-        self.hi_there = Button(frame, text="Ask for a float", command=self.ask_for_string)
-        self.hi_there.pack(side=LEFT)
-        self.file_dialog_button = Button(frame, text="Open File Dialog", fg="blue", command=self.browse_file)
-        self.file_dialog_button.pack(side=LEFT)
-        self.load_button = Button(frame, text="Load", command=self.load)
-        self.load_button.pack(side=LEFT)
-
-    def say_hi(self):
-        print("hi there, everyone!")
+        # define GUI elements
+        self.label_fname = Label(frame, text='Filename: ')        
+        self.entry = Entry(frame, width=50, textvariable=self.var_filename)        
+        self.btn_browse = Button(frame, text='Browse', command=self.browse_file)
+        self.btn_load = Button(frame, text='Load', command=self.load)
         
-    def ask_for_string(self):
-        s=simpledialog.askstring('My Dialog', 'Please enter a string')
-        print(s)
-        
-    def ask_for_float(self):
-        f=simpledialog.askfloat('My Dialog', 'Please enter a string')
-        print(f)
+        # pack GUI elements
+        self.label_fname.pack(side=LEFT)
+        self.entry.pack(side=LEFT)
+        self.btn_browse.pack(side=LEFT)
+        self.btn_load.pack(side=LEFT)
+        print ( "called the draw callback!")
         
     def browse_file(self):
         self.var_filename.set(filedialog.askopenfilename(filetypes=[("allfiles","*"),("pythonfiles","*.txt")]))
-        filename = self.var_filename.get()
-        print(filename)
-        
+    
     def load(self):
-        #self.var_filename.set(filedialog.askopenfilename(filetypes=[("Text files","*.txt")]))
         filename = self.var_filename.get()
         
         if not filename:
@@ -163,24 +155,80 @@ class cl_pannel_01:
         with open(filename, 'r') as f:
             data = [l for l in f.read().splitlines() if l]
             
-        verteces = []
-        faces = []
+        del self.master.verteces[:]
+        del self.master.faces[:]
         
         for l in data:
             points = l.split()[1:]
             if l[0] == 'v':
-                verteces.append(np.array(points).astype(float))
+                self.master.verteces.append(np.array(points).astype(float))
             elif l[0] == 'f':
-                faces.append([int(x) for x in points])
+                self.master.faces.append([int(x) for x in points])
             elif l[0] == 'w':
-                window = tuple(float(x) for x in points)
+                self.master.window = tuple(float(x) for x in points)
             elif l[0] == 's':
-                viewport = tuple(float(x) for x in points)
+                self.master.viewport = tuple(float(x) for x in points)
             else:
                 messagebox.showerror('Error', 'Invalid file format')
                 return
                 
-        self.master.ob_world.draw(self.master.ob_canvas_frame.canvas, verteces, faces, window, viewport)
+        self.master.ob_world.draw(self.master.ob_canvas_frame.canvas, 
+                                  self.master.verteces, 
+                                  self.master.faces, 
+                                  self.master.window, 
+                                  self.master.viewport)
+        
+class cl_pannel_01:
+
+    def __init__(self, master):
+
+        self.master=master
+        frame = Frame(master.ob_root_window)
+        frame.pack()
+        
+        self.var_axis = StringVar()
+        self.var_axis.set('')
+        
+        # define GUI elements
+        self.label_rotaxis = Label(frame, text='Rotation Axis: ')
+        self.label_degree = Label(frame, text='Degree: ')
+        self.label_steps = Label(frame, text='Steps: ')
+        self.rdo_x = Radiobutton(frame, text='X', variable=self.var_axis, value='x')
+        self.rdo_y = Radiobutton(frame, text='Y', variable=self.var_axis, value='y')
+        self.rdo_z = Radiobutton(frame, text='Z', variable=self.var_axis, value='z')
+        self.rdo_ab = Radiobutton(frame, text='Line AB', variable=self.var_axis, value='ab')
+        self.spnbox_degree = Spinbox(frame, from_=0, to=360, width=3)
+        self.spnbox_steps = Spinbox(frame, from_=1, to=10, width=2)
+        self.btn_rotate = Button(frame, text='Rotate', command=self.btn_rotate_callback)
+        
+        # pack GUI elements
+        self.label_rotaxis.pack(side=LEFT)
+        self.rdo_x.pack(side=LEFT)
+        self.rdo_y.pack(side=LEFT)
+        self.rdo_z.pack(side=LEFT)
+        self.rdo_ab.pack(side=LEFT)
+        self.label_degree.pack(side=LEFT)
+        self.spnbox_degree.pack(side=LEFT)
+        self.label_steps.pack(side=LEFT)
+        self.spnbox_steps.pack(side=LEFT)
+        self.btn_rotate.pack(side=LEFT)
+        
+        self.rdo_z.select()
+        
+    def btn_rotate_callback(self):
+        axis = self.var_axis.get()
+        steps = int(self.spnbox_steps.get())
+        theta = np.deg2rad(int(self.spnbox_degree.get())) / steps
+        
+        for n in range(steps):
+            self.master.verteces = self.master.ob_world.rotate(axis, theta, self.master.verteces)
+            self.master.ob_world.draw(self.master.ob_canvas_frame.canvas, 
+                                      self.master.verteces, 
+                                      self.master.faces, 
+                                      self.master.window, 
+                                      self.master.viewport)
+            print()
+            time.sleep(1/10)
     
 class cl_pannel_02:
 
@@ -300,30 +348,5 @@ class cl_menu:
 
     def menu_item2_callback(self):
         print ("called item2 callback!")    
-class cl_toolbar:
-    def __init__(self, master):
-        
-        self.master=master
-        self.toolbar = Frame(master.ob_root_window)
-        self.button = Button(self.toolbar, text="Draw", width=16, command=self.toolbar_draw_callback)
-        self.button.pack(side=LEFT, padx=2, pady=2)
 
-        self.button = Button(self.toolbar, text="Toolbar Button 2", width=16, command=self.toolbar_callback)
-        self.button.pack(side=RIGHT, padx=2, pady=2)
-
-        self.toolbar.pack(side=TOP, fill=X)
-    def toolbar_draw_callback(self):
-        self.master.ob_world.create_graphic_objects(self.master.ob_canvas_frame.canvas)
-        #temp_canvas=self.master.ob_canvas_frame.canvas
-        #line1=temp_canvas.create_line(0,0,temp_canvas.cget("width"),temp_canvas.cget("height"))
-        #line2=temp_canvas.create_line(temp_canvas.cget("width"),0,0,temp_canvas.cget("height"))
-        #oval=temp_canvas.create_oval(int(0.25*int(temp_canvas.cget("width"))),
-            #int(0.25*int(temp_canvas.cget("height"))),
-            #int(0.75*int(temp_canvas.cget("width"))),
-            #int(0.75*int(temp_canvas.cget("height"))))
-
-        print ( "called the draw callback!")
-    
-    def toolbar_callback(self):
-        print ( "called the toolbar callback!")
 

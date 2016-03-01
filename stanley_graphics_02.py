@@ -23,6 +23,7 @@ def window_to_viewport(point, window, viewport, canvas):
     yratio = (vymax - vymin) / (wymax - wymin)
     
     # homogeneous coords
+    print(point)
     point = np.append(point, 1)
     
     M_wv = np.matrix([[xratio, 0, -wxmin * xratio + vxmin],
@@ -78,10 +79,7 @@ class cl_world:
             int(0.75*int(canvas.cget("height")))))
             
     def draw(self, canvas, verteces, faces, window, viewport):
-        #for o in self.objects:
-        #    canvas.delete(o)
-        canvas.delete(ALL)
-            
+        canvas.delete(ALL)            
         del self.objects[:]
         
         # draw viewport
@@ -128,7 +126,29 @@ class cl_world:
         self.verteces = verteces
         self.faces = faces
         self.window = window
-        self.viewport = viewport    
+        self.viewport = viewport
+        
+    def rotate(self, axis, theta, verteces):
+        if axis == 'x':
+            r = np.matrix([[1, 0, 0],
+                           [0, np.cos(theta), -np.sin(theta)],
+                           [0, np.sin(theta), np.cos(theta)]])
+        elif axis == 'y':
+            r = np.matrix([[np.cos(theta), 0, np.sin(theta)],
+                           [0, 1, 0],
+                           [-np.sin(theta), 0, np.cos(theta)]])
+        elif axis == 'z':
+            r = np.matrix([[np.cos(theta), -np.sin(theta), 0],
+                           [np.sin(theta), np.cos(theta), 0],
+                           [0, 0, 1]])
+                           
+        new_verts = []
+        for v in verteces:
+            print(r.dot(v).getA()[0])
+            new_verts.append(r.dot(v).getA()[0])
+            
+        return new_verts
+                           
         
     def redisplay(self,canvas,event):
         if self.objects:

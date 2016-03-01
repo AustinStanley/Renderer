@@ -22,4 +22,3 @@ ob_root_window.protocol("WM_DELETE_WINDOW", lambda root_window=ob_root_window: c
 ob_world=cl_world()
 cl_widgets(ob_root_window,ob_world)
 ob_root_window.mainloop()
-
