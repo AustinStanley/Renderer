@@ -9,8 +9,8 @@ from tkinter import simpledialog
 from tkinter import filedialog
 
 import string
-from stanley_widgets_01 import *
-from stanley_graphics_01 import *
+from stanley_widgets_02 import *
+from stanley_graphics_02 import *
 
 def close_window_callback(root):
     if messagebox.askokcancel("Quit", "Do you really wish to quit?"):

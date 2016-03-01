@@ -14,18 +14,24 @@ def window_to_viewport(point, window, viewport, canvas):
     xres = float(canvas.cget('width'))
     yres = float(canvas.cget('height'))
     
+    vxmin *= xres
+    vxmax *= xres
+    vymin *= yres
+    vymax *= yres
+    
+    xratio = (vxmax - vxmin) / (wxmax - wxmin)
+    yratio = (vymax - vymin) / (wymax - wymin)
+    
     # homogeneous coords
     point = np.append(point, 1)
     
-    t1 = np.matrix([[1, 0, -wxmin], [0, 1, -wymin], [0, 0, 1]])
-    t2 = np.matrix([[1, 0, vxmin], [0, 1, vymin], [0, 0, 1]])
-    s1 = np.matrix([[(vxmax - vxmin) / (wxmax - wxmin), 0, 0], [0, (vymax - vymin) / (wymax - wymin), 0], [0, 0, 1]])
-    s2 = np.matrix([[xres, 0, 0], [0, yres, 0], [0, 0, 1]])
-    
-    res = t1.dot(point).dot(s1).dot(t2).dot(s2).getA()[0]
-    res[1] = (vymax * yres) - res[1]
-    
-    return tuple(res[:-1])
+    M_wv = np.matrix([[xratio, 0, -wxmin * xratio + vxmin],
+                      [0, yratio, -wymin * yratio + vymin],
+                      [0, 0, 1]])
+                      
+    res = M_wv.dot(point).getA()[0][:-1]
+    res[1] = yres - res[1]
+    return tuple(res)
     
 def window_to_viewport2(points, window, viewport, canvas):
     wxmin, wymin, wxmax, wymax = window
