@@ -103,6 +103,8 @@ class cl_world:
         self.window = window
         self.viewport = viewport
         
+        canvas.update_idletasks()
+        
     def draw2(self, canvas, verteces, faces, window, viewport):
         for o in self.objects:
             canvas.delete(o)
@@ -144,6 +146,29 @@ class cl_world:
         new_verts = []
         for v in verteces:
             new_verts.append(r.dot(v).getA()[0])
+            
+        return new_verts
+        
+    def scale(self, point, scale_vector, verteces):
+        t1 = np.matrix([[1, 0, 0, -point[0]], 
+                        [0, 1, 0, -point[1]], 
+                        [0, 0, 1, -point[2]], 
+                        [0, 0, 0, 1]])
+                        
+        t2 = np.matrix([[1, 0, 0, point[0]], 
+                        [0, 1, 0, point[1]], 
+                        [0, 0, 1, point[2]], 
+                        [0, 0, 0, 1]])
+                        
+        s = np.matrix([[scale_vector[0], 0, 0, 0], 
+                       [0, scale_vector[1], 0, 0], 
+                       [0, 0, scale_vector[2], 0], 
+                       [0, 0, 0, 1]])
+                       
+        new_verts = []
+        for v in verteces:
+            homogeneous_v = np.append(v, 1)
+            new_verts.append(t2.dot(s.dot(t1.dot(homogeneous_v).getA()[0]).getA()[0]).getA()[0][:-1])
             
         return new_verts
                            

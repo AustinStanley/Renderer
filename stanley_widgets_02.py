@@ -226,7 +226,7 @@ class cl_pannel_01:
                                       self.master.faces, 
                                       self.master.window, 
                                       self.master.viewport)
-            time.sleep(1/10)
+            time.sleep(1/60)
     
 class cl_pannel_02:
 
@@ -235,6 +235,71 @@ class cl_pannel_02:
         self.master=master
         frame = Frame(master.ob_root_window)
         frame.pack()
+        
+        self.var_radiosel = StringVar(value='')
+        self.var_sx = StringVar(value='1.0')
+        self.var_sy = StringVar(value='1.0')
+        self.var_sz = StringVar(value='1.0')
+        self.var_a1 = StringVar(value='0.0')
+        self.var_a2 = StringVar(value='0.0')
+        self.var_a3 = StringVar(value='0.0')
+        
+        #define GUI elements
+        self.label_ratio = Label(frame, text='Scale Ratio: ')
+        self.label_about = Label(frame, text='A: ')
+        self.label_steps = Label(frame, text='Steps')
+        self.rdo_all = Radiobutton(frame, text='All', variable=self.var_radiosel, value='a')
+        self.rdo_vector = Radiobutton(frame, text='[Sx, Sy, Sz]: ', variable=self.var_radiosel, value='v')
+        self.spnbox_ratio = Spinbox(frame, from_=0.0, to=4.0, width=4, increment=0.25, format='%1.2f')
+        self.spnbox_steps = Spinbox(frame, from_=0, to=10, width=2)
+        self.entry_sx = Entry(frame, width=3, textvariable=self.var_sx)
+        self.entry_sy = Entry(frame, width=3, textvariable=self.var_sy)
+        self.entry_sz = Entry(frame, width=3, textvariable=self.var_sz)
+        self.entry_a1 = Entry(frame, width=3, textvariable=self.var_a1)
+        self.entry_a2 = Entry(frame, width=3, textvariable=self.var_a2)
+        self.entry_a3 = Entry(frame, width=3, textvariable=self.var_a3)
+        self.btn_scale = Button(frame, text='Scale', command=self.btn_scale_callback)
+        
+        # pack GUI elements
+        self.label_ratio.pack(side=LEFT)
+        self.rdo_all.pack(side=LEFT)
+        self.spnbox_ratio.pack(side=LEFT)
+        self.rdo_vector.pack(side=LEFT)
+        self.entry_sx.pack(side=LEFT)
+        self.entry_sy.pack(side=LEFT)
+        self.entry_sz.pack(side=LEFT)
+        self.label_about.pack(side=LEFT)
+        self.entry_a1.pack(side=LEFT)
+        self.entry_a2.pack(side=LEFT)
+        self.entry_a3.pack(side=LEFT)
+        self.label_steps.pack(side=LEFT)
+        self.spnbox_steps.pack(side=LEFT)
+        self.btn_scale.pack(side=LEFT)
+        
+        self.rdo_all.select()
+        
+    def btn_scale_callback(self):
+        if self.var_radiosel.get() == 'a':
+            scale = float(self.spnbox_ratio.get())
+            scale_vector = np.array((scale, scale, scale))
+        elif self.var_radiosel.get() == 'v':
+            scale_vector = np.array((float(self.entry_sx.get()), float(self.entry_sy.get()), float(self.entry_sz.get())))
+        
+        point = (float(self.entry_a1.get()), float(self.entry_a2.get()), float(self.entry_a3.get()))
+        steps = int(self.spnbox_steps.get())
+        
+        scale_factor = (scale_vector - 1) / steps
+        
+        for n in range(steps):
+            scaled_verts = self.master.ob_world.scale(point, np.array([1, 1, 1]) + scale_factor * n, self.master.verteces)
+            self.master.ob_world.draw(self.master.ob_canvas_frame.canvas, 
+                                          scaled_verts, 
+                                          self.master.faces, 
+                                          self.master.window, 
+                                          self.master.viewport)
+            time.sleep(1/60)
+            
+        self.master.verteces = scaled_verts
         
 class MyDialog(simpledialog.Dialog):
     def body(self, master):
